@@ -56,7 +56,8 @@ public class HandleScheduledBackups
                     Constants.PREFS_PATH_BACKUP_DIRECTORY,
                     FileCreationHelper.getDefaultBackupDirPath());
                 backupDir = new File(backupDirPath);
-                ArrayList<AppInfo> list = AppInfoHelper.getPackageInfo(context, backupDir, false);
+                ArrayList<AppInfo> list = AppInfoHelper.getPackageInfo(context, backupDir,
+                        false, shellCommands);
                 ArrayList<AppInfo> listToBackUp;
                 switch(mode)
                 {

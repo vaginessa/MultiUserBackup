@@ -15,10 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.RadioButton;
+import android.widget.*;
 import dk.jens.backup.adapters.BatchAdapter;
 import dk.jens.backup.ui.HandleMessages;
 import dk.jens.backup.ui.NotificationHelper;
@@ -58,6 +55,7 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
     Sorter sorter;
 
     long threadId = -1;
+    private Spinner userSelect;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -93,6 +91,16 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
         shellCommands = new ShellCommands(prefs, users);
 
         Button bt = (Button) findViewById(R.id.backupRestoreButton);
+
+        userSelect = (Spinner) findViewById(R.id.userSelect);
+        List<String> spinnerArray = new ArrayList<String>();
+        spinnerArray.addAll(shellCommands.getUsers());
+
+        ArrayAdapter<String> selectAdapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, spinnerArray);
+        selectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        userSelect.setAdapter(selectAdapter);
+
         bt.setOnClickListener(this);
         rbApk = (RadioButton) findViewById(R.id.radioApk);
         rbData = (RadioButton) findViewById(R.id.radioData);
@@ -100,7 +108,8 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
         rbBoth.setChecked(true);
 
         if(appInfoList == null)
-            appInfoList = AppInfoHelper.getPackageInfo(this, backupDir, true);
+            appInfoList = AppInfoHelper.getPackageInfo(this, backupDir,
+                    true, shellCommands);
         if(backupBoolean)
         {
             list = new ArrayList<AppInfo>();
@@ -120,7 +129,7 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
         adapter = new BatchAdapter(this, R.layout.batchlistlayout, list);
         sorter = new Sorter(adapter, prefs);
         sorter.sort(filteringMethodId);
-        sorter.sort(sortingMethodId);
+//        sorter.sort(sortingMethodId);
         listView.setAdapter(adapter);
         // onItemClickListener gør at hele viewet kan klikkes - med onCheckedListener er det kun checkboxen der kan klikkes
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -299,7 +308,7 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
                         mode = AppInfo.MODE_DATA;
                     if(backupBoolean)
                     {
-                        if(BackupRestoreHelper.backup(this, backupDir, appInfo, shellCommands, mode) != 0)
+                        if(BackupRestoreHelper.backup(this, backupDir, appInfo, shellCommands, mode, (String) userSelect.getSelectedItem()) != 0)
                             errorFlag = true;
                         else if(crypto != null)
                         {
@@ -313,7 +322,7 @@ implements OnClickListener, BatchConfirmDialog.ConfirmListener
                     }
                     else
                     {
-                        if(BackupRestoreHelper.restore(this, backupDir, appInfo, shellCommands, mode, crypto) != 0)
+                        if(BackupRestoreHelper.restore(this, backupDir, appInfo, shellCommands, mode, crypto,  (String) userSelect.getSelectedItem()) != 0)
                             errorFlag = true;
                     }
                     if(i == total)

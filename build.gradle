@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.4.0-alpha5'
+        classpath 'com.android.tools.build:gradle:2.3.0'
     }
 }
 
@@ -18,8 +18,14 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 'android-25'
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+   defaultConfig {
+        jackOptions {
+            enabled true
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

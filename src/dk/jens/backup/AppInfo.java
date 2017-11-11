@@ -4,6 +4,9 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class AppInfo
 implements Comparable<AppInfo>, Parcelable
 {
@@ -11,6 +14,7 @@ implements Comparable<AppInfo>, Parcelable
     String label, packageName, versionName, sourceDir, dataDir;
     int versionCode, backupMode;
     private boolean system, installed, checked, disabled;
+    private Set<String> users = new HashSet<>();
     public Bitmap icon;
     public static final int MODE_UNSET = 0;
     public static final int MODE_APK = 1;
@@ -160,5 +164,13 @@ implements Comparable<AppInfo>, Parcelable
         installed = bools[1];
         checked = bools[2];
         icon = (Bitmap) in.readParcelable(getClass().getClassLoader());
+    }
+
+    public Set<String> getUsers() {
+        return users;
+    }
+
+    public void addUser(String user) {
+        this.users.add(user);
     }
 }

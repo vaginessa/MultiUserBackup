@@ -20,9 +20,14 @@ public class BackupRestoreDialogFragment extends DialogFragment
     final static String TAG = OAndBackup.TAG;
 
     private List<ActionListener> listeners;
+    private String[] users;
 
     public BackupRestoreDialogFragment() {
         listeners = new ArrayList<>();
+    }
+
+    public void setUsers(String[] users) {
+        this.users = users;
     }
 
     public void setListener(ActionListener listener) {
@@ -47,6 +52,7 @@ public class BackupRestoreDialogFragment extends DialogFragment
                     arguments.putSerializable(Constants.BUNDLE_ACTIONTYPE,
                         BackupRestoreHelper.ActionType.BACKUP);
                     BackupRestoreOptionsDialogFragment backupDialog = new BackupRestoreOptionsDialogFragment();
+                    backupDialog.setUsers(users);
                     backupDialog.setArguments(arguments);
                     for(ActionListener listener : listeners)
                         backupDialog.setListener(listener);
@@ -63,6 +69,7 @@ public class BackupRestoreDialogFragment extends DialogFragment
                     arguments.putSerializable(Constants.BUNDLE_ACTIONTYPE,
                         BackupRestoreHelper.ActionType.RESTORE);
                     BackupRestoreOptionsDialogFragment restoreDialog = new BackupRestoreOptionsDialogFragment();
+                    restoreDialog.setUsers(users);
                     restoreDialog.setArguments(arguments);
                     for(ActionListener listener : listeners)
                         restoreDialog.setListener(listener);

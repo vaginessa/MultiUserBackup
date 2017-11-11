@@ -8,6 +8,12 @@
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
     />
+
+    <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/userSelect"/>
+
     <RadioGroup
         android:id="@+id/radiogroup"
         android:orientation="horizontal"

@@ -132,11 +132,11 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
 
     @Override
     public void onActionCalled(AppInfo appInfo,
-            BackupRestoreHelper.ActionType actionType, int mode) {
+            BackupRestoreHelper.ActionType actionType, int mode, String user) {
         if(actionType == BackupRestoreHelper.ActionType.BACKUP) {
-            callBackup(appInfo, mode);
+            callBackup(appInfo, mode, user);
         } else if(actionType == BackupRestoreHelper.ActionType.RESTORE) {
-            callRestore(appInfo, mode);
+            callRestore(appInfo, mode, user);
         } else {
             Log.e(TAG, "unknown actionType: " + actionType);
         }
@@ -153,13 +153,15 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
             Bundle arguments = new Bundle();
             arguments.putParcelable("appinfo", appInfo);
             BackupRestoreDialogFragment dialog = new BackupRestoreDialogFragment();
+            ArrayList<String> users = this.shellCommands.getUsers();
+            dialog.setUsers(users.toArray(new String[users.size()]));
             dialog.setListener(this);
             dialog.setArguments(arguments);
     //        dialog.show(getFragmentManager(), "DialogFragment");
             dialog.show(getFragmentManager(), "DialogFragment");
         }
     }
-    public void callBackup(final AppInfo appInfo, final int backupMode)
+    public void callBackup(final AppInfo appInfo, final int backupMode, String user)
     {
         Thread backupThread = new Thread(new Runnable()
         {
@@ -174,7 +176,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
                     if(prefs.getBoolean(Constants.PREFS_ENABLECRYPTO, false) &&
                             Crypto.isAvailable(OAndBackup.this))
                         crypto = getCrypto();
-                    backupRet = BackupRestoreHelper.backup(OAndBackup.this, backupDir, appInfo, shellCommands, backupMode);
+                    backupRet = BackupRestoreHelper.backup(OAndBackup.this, backupDir, appInfo, shellCommands, backupMode, user);
                     if(backupRet == 0 && crypto != null)
                     {
                         crypto.encryptFromAppInfo(OAndBackup.this, backupDir, appInfo, backupMode, prefs);
@@ -208,7 +210,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
         backupThread.start();
         threadId = backupThread.getId();
     }
-    public void callRestore(final AppInfo appInfo, final int mode)
+    public void callRestore(final AppInfo appInfo, final int mode, String user)
     {
         Thread restoreThread = new Thread(new Runnable()
         {
@@ -221,7 +223,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
                     Crypto crypto = null;
                     if(Crypto.isAvailable(OAndBackup.this) && Crypto.needToDecrypt(backupDir, appInfo, mode))
                         crypto = getCrypto();
-                    ret = BackupRestoreHelper.restore(OAndBackup.this, backupDir, appInfo, shellCommands, mode, crypto);
+                    ret = BackupRestoreHelper.restore(OAndBackup.this, backupDir, appInfo, shellCommands, mode, crypto, user);
                     refresh();
                 }
                 handleMessages.endMessage();
@@ -246,7 +248,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
             public void run()
             {
                 handleMessages.showMessage("", getString(R.string.collectingData));
-                appInfoList = AppInfoHelper.getPackageInfo(OAndBackup.this, backupDir, true);
+                appInfoList = AppInfoHelper.getPackageInfo(OAndBackup.this, backupDir, true,
+                        shellCommands);
                 runOnUiThread(new Runnable()
                 {
                     public void run()
@@ -256,7 +259,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
                         {
                             adapter.setNewOriginalValues(appInfoList);
                             sorter.sort(sorter.getFilteringMethod().getId());
-                            sorter.sort(sorter.getSortingMethod().getId());
+//                            sorter.sort(sorter.getSortingMethod().getId());
                             adapter.restoreFilter();
                             adapter.notifyDataSetChanged();
                         }
@@ -656,7 +659,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
             if(appInfoList == null)
             {
                 handleMessages.changeMessage("", getString(R.string.collectingData));
-                appInfoList = AppInfoHelper.getPackageInfo(OAndBackup.this, backupDir, true);
+                appInfoList = AppInfoHelper.getPackageInfo(OAndBackup.this, backupDir,
+                        true, shellCommands);
                 LanguageHelper.legacyKeepLanguage(OAndBackup.this, langCode);
                 handleMessages.endMessage();
             }
