@@ -3,12 +3,15 @@ package cn.drapl.backup;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 import cn.drapl.backup.ui.HandleMessages;
 
 import java.io.File;
+import java.util.Locale;
 
 public class Utils
 {
@@ -116,5 +119,14 @@ public class Utils
     public interface Command
     {
         public void execute();
+    }
+
+    public static Locale getCurrentLocale(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return context.getResources().getConfiguration().getLocales().get(0);
+        } else{
+            //noinspection deprecation
+            return context.getResources().getConfiguration().locale;
+        }
     }
 }

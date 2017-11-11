@@ -5,9 +5,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.jaredrummler.apkparser.ApkParser;
+import com.jaredrummler.apkparser.model.ApkMeta;
+import com.jaredrummler.apkparser.model.Icon;
 
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -833,21 +839,41 @@ public class ShellCommands implements CommandHandler.UnexpectedExceptionListener
             ArrayList<String> apps = pair.getValue();
             for (String apkPath : apps) {
                 PackageInfo pinfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
+                ApkParser apkParser = ApkParser.create(apkPath);
+                apkParser.setPreferredLocale(Utils.getCurrentLocale(context));
+
+                ApkMeta meta;
+                try {
+                    meta = apkParser.getApkMeta();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    continue;
+                }
                 if (pinfo == null) {
                     continue;
+                }
+
+                Bitmap icon;
+                try {
+                    Icon apkIcon = apkParser.getIconFile();
+                    icon = BitmapFactory.decodeByteArray(apkIcon.data, 0,
+                            apkIcon.data.length);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    icon = getIcon(pm, pinfo);
                 }
 
                 AppInfo existsApp = exists.get(pinfo.packageName);
                 if (existsApp == null) {
                     AppInfo appInfo = new AppInfo(pinfo.packageName,
-                            pinfo.applicationInfo.loadLabel(pm).toString(),
+                            meta.label,
                             pinfo.versionName, pinfo.versionCode,
                             apkMap.get(pinfo.packageName),
                             "/data/user/" + user + "/" + pinfo.packageName, false,
                             true);
                     appInfo.addUser(user);
                     ret.add(appInfo);
-                    appInfo.icon = getIcon(pm, pinfo);
+                    appInfo.icon = icon;
                 }
             }
         }
