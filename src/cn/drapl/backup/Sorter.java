@@ -9,7 +9,7 @@ import java.util.Comparator;
 public class Sorter
 {
     AppInfoAdapter adapter;
-    FilteringMethod filteringMethod = FilteringMethod.ALL;
+    FilteringMethod filteringMethod = FilteringMethod.USER;
     SortingMethod sortingMethod = SortingMethod.PACKAGENAME;
     // SparseIntArray is more memory efficient than mapping integers to integers using a hashmap
     private static final SparseIntArray convertFilteringIdMap, convertSortingIdMap;

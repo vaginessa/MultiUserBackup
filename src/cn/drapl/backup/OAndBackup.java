@@ -258,7 +258,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
                         {
                             adapter.setNewOriginalValues(appInfoList);
                             sorter.sort(sorter.getFilteringMethod().getId());
-//                            sorter.sort(sorter.getSortingMethod().getId());
+                            sorter.sort(sorter.getSortingMethod().getId());
                             adapter.restoreFilter();
                             adapter.notifyDataSetChanged();
                         }
@@ -671,11 +671,16 @@ implements SharedPreferences.OnSharedPreferenceChangeListener, ActionListener
             adapter.setLocalTimestampFormat(prefs.getBoolean(
                 Constants.PREFS_TIMESTAMP, true));
             sorter = new Sorter(adapter, prefs);
+
             if(prefs.getBoolean("rememberFiltering", false))
             {
                 sorter.sort(Sorter.convertFilteringId(prefs.getInt("filteringId", 0)));
                 sorter.sort(Sorter.convertSortingId(prefs.getInt("sortingId", 1)));
+            } else {
+                sorter.sort(Sorter.convertFilteringId(sorter.getFilteringMethod().ordinal()));
+                sorter.sort(Sorter.convertSortingId(sorter.getSortingMethod().ordinal()));
             }
+
             runOnUiThread(new Runnable(){
                 public void run()
                 {
