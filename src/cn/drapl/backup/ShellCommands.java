@@ -823,7 +823,7 @@ public class ShellCommands implements CommandHandler.UnexpectedExceptionListener
                 } else {
                     List<String> linkCommands = new ArrayList<>();
                     String apkLink = context.getCacheDir() + "/" + name + ".apk";
-                    linkCommands.add("ln -s " + apkPath + " " + apkLink);
+                    linkCommands.add("ln -snf " + apkPath + " " + apkLink);
                     CommandHandler.runCmd("su", linkCommands, line_i -> {
                             },
                             line_i -> writeErrorLog("", line_i),
